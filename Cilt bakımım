@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cilt Bakımı Takip</title>
+    <meta name="theme-color" content="#5D5CDE">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Cilt Bakımı">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iNDAiIGZpbGw9IiM1RDVDREUiLz4KPHN2ZyB4PSI0OCIgeT0iNDgiIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJ3aGl0ZSI+CjxwYXRoIGQ9Ik0xMiAyYzIuMjEgMCA0IDEuNzkgNCA0IDAgLjc0LS4xOSAxLjQ0LS41MiAyLjA1bDEuNjUgMi43NC0yLjE1IDIuMTVjLS43Mi0uNDktMS41NS0uOTEtMi40OS0xLjIzIDEuNjctLjYyIDIuOTQtMi4wNiAzLjMzLTMuODVDMTYuMDYgNi4zMyAxNS4xNCA2IDEzLjc1IDZzLTIuMzEuMzMtMi4wNy44NmMuMzkgMS43OSAxLjY2IDMuMjMgMy4zMyAzLjg1LS45NC4zMi0xLjc3Ljc0LTIuNDkgMS4yM0w5LjM3IDkuNzlDOS4xIDkuMTggOSA4LjQ4IDkgNy43NGMwLTIuMjEgMS43OS00IDQtNHptMCA4Yy0xLjEgMC0yIC45LTIgMnMuOSAyIDIgMiAyLS45IDItMi0uOS0yLTItMnoiLz4KPC9zdmc+Cjwvc3ZnPg==">
+    <link rel="icon" type="image/png" sizes="512x512" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTAwIiBmaWxsPSIjNUQ1Q0RFIi8+Cjx0ZXh0IHg9IjI1NiIgeT0iMjgwIiBmb250LXNpemU9IjE2MCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIj7inajinKg8L3RleHQ+Cjwvc3ZnPg==">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        skin: {
+                            light: '#FDF2E9',
+                            medium: '#FAE5D3',
+                            dark: '#E8C2B8'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .dark .glass-effect {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <!-- Dark Mode Detection -->
+    <script>
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+    </script>
+
+    <!-- Navigation -->
+    <nav class="bg-white dark:bg-gray-800 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-2xl font-bold text-primary">✨ Cilt Bakımı</h1>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="notificationBtn" class="p-2 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-3.5-3.5a7 7 0 1 0-1.5 1.5L17 17H6a3 3 0 0 0 3-3V9a4 4 0 1 1 8 0v4.5z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Tab Navigation -->
+        <div class="flex flex-wrap mb-8 bg-white dark:bg-gray-800 rounded-lg shadow-md p-2">
+            <button class="tab-btn active" data-tab="assessment">🔍 Cilt Tipi</button>
+            <button class="tab-btn" data-tab="products">🧴 Ürünlerim</button>
+            <button class="tab-btn" data-tab="routine">📋 Rutin</button>
+            <button class="tab-btn" data-tab="calendar">📅 Takvim</button>
+            <button class="tab-btn" data-tab="reminders">⏰ Hatırlatma</button>
+        </div>
+
+        <!-- Assessment Tab -->
+        <div id="assessment" class="tab-content active">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Cilt Tipi Belirleme</h2>
+                
+                <div id="skinTest" class="space-y-6">
+                    <!-- Question 1 -->
+                    <div class="question fade-in">
+                        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">1. Yüzünüzü yıkadıktan 2-3 saat sonra T-bölgeniz (alın, burun, çene) nasıl hissediyor?</h3>
+                        <div class="space-y-2">
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q1" value="dry" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Çok kuru ve gergin</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q1" value="normal" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Normal, ne kuru ne yağlı</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q1" value="oily" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Yağlı ve parlak</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q1" value="combination" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">T-bölge yağlı, yanaklar normal/kuru</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Question 2 -->
+                    <div class="question fade-in">
+                        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">2. Gözeneklerinizin durumu nasıl?</h3>
+                        <div class="space-y-2">
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q2" value="small" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Çok küçük, neredeyse görünmez</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q2" value="normal" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Normal boyut</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q2" value="large" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Büyük ve belirgin</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q2" value="tzone" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">T-bölgede büyük, yanaklarda küçük</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Question 3 -->
+                    <div class="question fade-in">
+                        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">3. Sivilce probleminiz var mı?</h3>
+                        <div class="space-y-2">
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q3" value="none" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Hiç yok</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q3" value="occasional" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Ara sıra, hormonal dönemlerde</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q3" value="frequent" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Sık sık, özellikle T-bölgede</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q3" value="severe" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Ciddi akne problemi</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button id="calculateSkinType" class="w-full bg-primary text-white py-3 px-6 rounded-lg font-semibold hover:bg-primary/90 transition-colors">
+                        Cilt Tipimi Belirle
+                    </button>
+                </div>
+
+                <div id="skinTypeResult" class="hidden mt-6 p-6 bg-gradient-to-r from-primary/10 to-purple-100 dark:from-primary/20 dark:to-purple-900/20 rounded-lg">
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">Cilt Tipi Sonucunuz</h3>
+                    <div id="skinTypeContent"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Tab -->
+        <div id="products" class="tab-content hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Ürün Koleksiyonum</h2>
+                    <button id="addProductBtn" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors">
+                        + Ürün Ekle
+                    </button>
+                </div>
+
+                <div id="productsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Products will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Routine Tab -->
+        <div id="routine" class="tab-content hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Cilt Bakım Rutinim</h2>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Morning Routine -->
+                    <div class="bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 p-6 rounded-lg">
+                        <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
+                            ☀️ Sabah Rutini
+                        </h3>
+                        <div id="morningRoutine" class="space-y-3">
+                            <!-- Morning routine steps will be added here -->
+                        </div>
+                        <button class="addRoutineStep mt-4 text-primary hover:bg-primary/10 px-3 py-2 rounded-lg transition-colors" data-time="morning">
+                            + Adım Ekle
+                        </button>
+                    </div>
+
+                    <!-- Evening Routine -->
+                    <div class="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 p-6 rounded-lg">
+                        <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
+                            🌙 Akşam Rutini
+                        </h3>
+                        <div id="eveningRoutine" class="space-y-3">
+                            <!-- Evening routine steps will be added here -->
+                        </div>
+                        <button class="addRoutineStep mt-4 text-primary hover:bg-primary/10 px-3 py-2 rounded-lg transition-colors" data-time="evening">
+                            + Adım Ekle
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <button id="generateRoutine" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors">
+                        Sahip Olduğum Ürünlere Göre Rutin Oluştur
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar Tab -->
+        <div id="calendar" class="tab-content hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Cilt Bakım Takvihi</h2>
+                
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="md:col-span-2">
+                        <div id="calendarView" class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                            <!-- Calendar will be generated here -->
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-4 rounded-lg">
+                            <h4 class="font-semibold text-gray-800 dark:text-white mb-2">📈 Bu Ay</h4>
+                            <div class="text-sm text-gray-600 dark:text-gray-300">
+                                <p>Tamamlanan rutin: <span id="monthlyCompleted" class="font-semibold">0</span></p>
+                                <p>Hedef: <span id="monthlyTarget" class="font-semibold">60</span></p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 p-4 rounded-lg">
+                            <h4 class="font-semibold text-gray-800 dark:text-white mb-2">🎯 Hedefler</h4>
+                            <div class="text-sm text-gray-600 dark:text-gray-300">
+                                <p>Günlük rutin: 2/2</p>
+                                <p>Haftalık maske: 1/1</p>
+                                <p>Su tüketimi: 8/8 bardak</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reminders Tab -->
+        <div id="reminders" class="tab-content hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Hatırlatma Ayarları</h2>
+                
+                <div class="space-y-6">
+                    <div class="bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">⏰ Rutin Hatırlatmaları</h3>
+                        
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Sabah Rutini</label>
+                                <input type="time" id="morningTime" value="08:00" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-base">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Akşam Rutini</label>
+                                <input type="time" id="eveningTime" value="22:00" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-base">
+                            </div>
+                        </div>
+
+                        <div class="mt-4 flex items-center">
+                            <input type="checkbox" id="enableNotifications" class="mr-3 w-4 h-4 text-primary">
+                            <label for="enableNotifications" class="text-gray-700 dark:text-gray-300">Tarayıcı bildirimlerini etkinleştir</label>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">📅 Özel Hatırlatmalar</h3>
+                        
+                        <div id="customReminders" class="space-y-3 mb-4">
+                            <!-- Custom reminders will be added here -->
+                        </div>
+                        
+                        <button id="addReminderBtn" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors">
+                            + Hatırlatma Ekle
+             <!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cilt Bakımı Takip</title>
+    <meta name="theme-color" content="#5D5CDE">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Cilt Bakımı">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iNDAiIGZpbGw9IiM1RDVDREUiLz4KPHN2ZyB4PSI0OCIgeT0iNDgiIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJ3aGl0ZSI+CjxwYXRoIGQ9Ik0xMiAyYzIuMjEgMCA0IDEuNzkgNCA0IDAgLjc0LS4xOSAxLjQ0LS41MiAyLjA1bDEuNjUgMi43NC0yLjE1IDIuMTVjLS43Mi0uNDktMS41NS0uOTEtMi40OS0xLjIzIDEuNjctLjYyIDIuOTQtMi4wNiAzLjMzLTMuODVDMTYuMDYgNi4zMyAxNS4xNCA2IDEzLjc1IDZzLTIuMzEuMzMtMi4wNy44NmMuMzkgMS43OSAxLjY2IDMuMjMgMy4zMyAzLjg1LS45NC4zMi0xLjc3Ljc0LTIuNDkgMS4yM0w5LjM3IDkuNzlDOS4xIDkuMTggOSA4LjQ4IDkgNy43NGMwLTIuMjEgMS43OS00IDQtNHptMCA4Yy0xLjEgMC0yIC45LTIgMnMuOSAyIDIgMiAyLS45IDItMi0uOS0yLTItMnoiLz4KPC9zdmc+Cjwvc3ZnPg==">
+    <link rel="icon" type="image/png" sizes="512x512" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTAwIiBmaWxsPSIjNUQ1Q0RFIi8+Cjx0ZXh0IHg9IjI1NiIgeT0iMjgwIiBmb250LXNpemU9IjE2MCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIj7inajinKg8L3RleHQ+Cjwvc3ZnPg==">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        skin: {
+                            light: '#FDF2E9',
+                            medium: '#FAE5D3',
+                            dark: '#E8C2B8'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .dark .glass-effect {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <!-- Dark Mode Detection -->
+    <script>
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+    </script>
+
+    <!-- Navigation -->
+    <nav class="bg-white dark:bg-gray-800 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-2xl font-bold text-primary">✨ Cilt Bakımı</h1>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="notificationBtn" class="p-2 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-3.5-3.5a7 7 0 1 0-1.5 1.5L17 17H6a3 3 0 0 0 3-3V9a4 4 0 1 1 8 0v4.5z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Tab Navigation -->
+        <div class="flex flex-wrap mb-8 bg-white dark:bg-gray-800 rounded-lg shadow-md p-2">
+            <button class="tab-btn active" data-tab="assessment">🔍 Cilt Tipi</button>
+            <button class="tab-btn" data-tab="products">🧴 Ürünlerim</button>
+            <button class="tab-btn" data-tab="routine">📋 Rutin</button>
+            <button class="tab-btn" data-tab="calendar">📅 Takvim</button>
+            <button class="tab-btn" data-tab="reminders">⏰ Hatırlatma</button>
+        </div>
+
+        <!-- Assessment Tab -->
+        <div id="assessment" class="tab-content active">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Cilt Tipi Belirleme</h2>
+                
+                <div id="skinTest" class="space-y-6">
+                    <!-- Question 1 -->
+                    <div class="question fade-in">
+                        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">1. Yüzünüzü yıkadıktan 2-3 saat sonra T-bölgeniz (alın, burun, çene) nasıl hissediyor?</h3>
+                        <div class="space-y-2">
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q1" value="dry" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Çok kuru ve gergin</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q1" value="normal" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Normal, ne kuru ne yağlı</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q1" value="oily" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Yağlı ve parlak</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q1" value="combination" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">T-bölge yağlı, yanaklar normal/kuru</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Question 2 -->
+                    <div class="question fade-in">
+                        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">2. Gözeneklerinizin durumu nasıl?</h3>
+                        <div class="space-y-2">
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q2" value="small" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Çok küçük, neredeyse görünmez</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q2" value="normal" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Normal boyut</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q2" value="large" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Büyük ve belirgin</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q2" value="tzone" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">T-bölgede büyük, yanaklarda küçük</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Question 3 -->
+                    <div class="question fade-in">
+                        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">3. Sivilce probleminiz var mı?</h3>
+                        <div class="space-y-2">
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q3" value="none" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Hiç yok</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q3" value="occasional" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Ara sıra, hormonal dönemlerde</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q3" value="frequent" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Sık sık, özellikle T-bölgede</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q3" value="severe" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Ciddi akne problemi</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button id="calculateSkinType" class="w-full bg-primary text-white py-3 px-6 rounded-lg font-semibold hover:bg-primary/90 transition-colors">
+                        Cilt Tipimi Belirle
+                    </button>
+                </div>
+
+                <div id="skinTypeResult" class="hidden mt-6 p-6 bg-gradient-to-r from-primary/10 to-purple-100 dark:from-primary/20 dark:to-purple-900/20 rounded-lg">
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">Cilt Tipi Sonucunuz</h3>
+                    <div id="skinTypeContent"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Tab -->
+        <div id="products" class="tab-content hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Ürün Koleksiyonum</h2>
+                    <button id="addProductBtn" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors">
+                        + Ürün Ekle
+                    </button>
+                </div>
+
+                <div id="productsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Products will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Routine Tab -->
+        <div id="routine" class="tab-content hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Cilt Bakım Rutinim</h2>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Morning Routine -->
+                    <div class="bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 p-6 rounded-lg">
+                        <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
+                            ☀️ Sabah Rutini
+                        </h3>
+                        <div id="morningRoutine" class="space-y-3">
+                            <!-- Morning routine steps will be added here -->
+                        </div>
+                        <button class="addRoutineStep mt-4 text-primary hover:bg-primary/10 px-3 py-2 rounded-lg transition-colors" data-time="morning">
+                            + Adım Ekle
+                        </button>
+                    </div>
+
+                    <!-- Evening Routine -->
+                    <div class="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 p-6 rounded-lg">
+                        <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
+                            🌙 Akşam Rutini
+                        </h3>
+                        <div id="eveningRoutine" class="space-y-3">
+                            <!-- Evening routine steps will be added here -->
+                        </div>
+                        <button class="addRoutineStep mt-4 text-primary hover:bg-primary/10 px-3 py-2 rounded-lg transition-colors" data-time="evening">
+                            + Adım Ekle
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <button id="generateRoutine" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors">
+                        Sahip Olduğum Ürünlere Göre Rutin Oluştur
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar Tab -->
+        <div id="calendar" class="tab-content hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Cilt Bakım Takvihi</h2>
+                
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="md:col-span-2">
+                        <div id="calendarView" class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                            <!-- Calendar will be generated here -->
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-4 rounded-lg">
+                            <h4 class="font-semibold text-gray-800 dark:text-white mb-2">📈 Bu Ay</h4>
+                            <div class="text-sm text-gray-600 dark:text-gray-300">
+                                <p>Tamamlanan rutin: <span id="monthlyCompleted" class="font-semibold">0</span></p>
+                                <p>Hedef: <span id="monthlyTarget" class="font-semibold">60</span></p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 p-4 rounded-lg">
+                            <h4 class="font-semibold text-gray-800 dark:text-white mb-2">🎯 Hedefler</h4>
+                            <div class="text-sm text-gray-600 dark:text-gray-300">
+                                <p>Günlük rutin: 2/2</p>
+                                <p>Haftalık maske: 1/1</p>
+                                <p>Su tüketimi: 8/8 bardak</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reminders Tab -->
+        <div id="reminders" class="tab-content hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Hatırlatma Ayarları</h2>
+                
+                <div class="space-y-6">
+                    <div class="bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">⏰ Rutin Hatırlatmaları</h3>
+                        
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Sabah Rutini</label>
+                                <input type="time" id="morningTime" value="08:00" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-base">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Akşam Rutini</label>
+                                <input type="time" id="eveningTime" value="22:00" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-base">
+                            </div>
+                        </div>
+
+                        <div class="mt-4 flex items-center">
+                            <input type="checkbox" id="enableNotifications" class="mr-3 w-4 h-4 text-primary">
+                            <label for="enableNotifications" class="text-gray-700 dark:text-gray-300">Tarayıcı bildirimlerini etkinleştir</label>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">📅 Özel Hatırlatmalar</h3>
+                        
+                        <div id="customReminders" class="space-y-3 mb-4">
+                            <!-- Custom reminders will be added here -->
+                        </div>
+                        
+                        <button id="addReminderBtn" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors">
+                            + Hatırlatma Ekle
+             <!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cilt Bakımı Takip</title>
+    <meta name="theme-color" content="#5D5CDE">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Cilt Bakımı">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iNDAiIGZpbGw9IiM1RDVDREUiLz4KPHN2ZyB4PSI0OCIgeT0iNDgiIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJ3aGl0ZSI+CjxwYXRoIGQ9Ik0xMiAyYzIuMjEgMCA0IDEuNzkgNCA0IDAgLjc0LS4xOSAxLjQ0LS41MiAyLjA1bDEuNjUgMi43NC0yLjE1IDIuMTVjLS43Mi0uNDktMS41NS0uOTEtMi40OS0xLjIzIDEuNjctLjYyIDIuOTQtMi4wNiAzLjMzLTMuODVDMTYuMDYgNi4zMyAxNS4xNCA2IDEzLjc1IDZzLTIuMzEuMzMtMi4wNy44NmMuMzkgMS43OSAxLjY2IDMuMjMgMy4zMyAzLjg1LS45NC4zMi0xLjc3Ljc0LTIuNDkgMS4yM0w5LjM3IDkuNzlDOS4xIDkuMTggOSA4LjQ4IDkgNy43NGMwLTIuMjEgMS43OS00IDQtNHptMCA4Yy0xLjEgMC0yIC45LTIgMnMuOSAyIDIgMiAyLS45IDItMi0uOS0yLTItMnoiLz4KPC9zdmc+Cjwvc3ZnPg==">
+    <link rel="icon" type="image/png" sizes="512x512" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTAwIiBmaWxsPSIjNUQ1Q0RFIi8+Cjx0ZXh0IHg9IjI1NiIgeT0iMjgwIiBmb250LXNpemU9IjE2MCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIj7inajinKg8L3RleHQ+Cjwvc3ZnPg==">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        skin: {
+                            light: '#FDF2E9',
+                            medium: '#FAE5D3',
+                            dark: '#E8C2B8'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .dark .glass-effect {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <!-- Dark Mode Detection -->
+    <script>
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+    </script>
+
+    <!-- Navigation -->
+    <nav class="bg-white dark:bg-gray-800 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-2xl font-bold text-primary">✨ Cilt Bakımı</h1>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="notificationBtn" class="p-2 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-3.5-3.5a7 7 0 1 0-1.5 1.5L17 17H6a3 3 0 0 0 3-3V9a4 4 0 1 1 8 0v4.5z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Tab Navigation -->
+        <div class="flex flex-wrap mb-8 bg-white dark:bg-gray-800 rounded-lg shadow-md p-2">
+            <button class="tab-btn active" data-tab="assessment">🔍 Cilt Tipi</button>
+            <button class="tab-btn" data-tab="products">🧴 Ürünlerim</button>
+            <button class="tab-btn" data-tab="routine">📋 Rutin</button>
+            <button class="tab-btn" data-tab="calendar">📅 Takvim</button>
+            <button class="tab-btn" data-tab="reminders">⏰ Hatırlatma</button>
+        </div>
+
+        <!-- Assessment Tab -->
+        <div id="assessment" class="tab-content active">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Cilt Tipi Belirleme</h2>
+                
+                <div id="skinTest" class="space-y-6">
+                    <!-- Question 1 -->
+                    <div class="question fade-in">
+                        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">1. Yüzünüzü yıkadıktan 2-3 saat sonra T-bölgeniz (alın, burun, çene) nasıl hissediyor?</h3>
+                        <div class="space-y-2">
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q1" value="dry" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Çok kuru ve gergin</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q1" value="normal" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Normal, ne kuru ne yağlı</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q1" value="oily" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Yağlı ve parlak</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q1" value="combination" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">T-bölge yağlı, yanaklar normal/kuru</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Question 2 -->
+                    <div class="question fade-in">
+                        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">2. Gözeneklerinizin durumu nasıl?</h3>
+                        <div class="space-y-2">
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q2" value="small" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Çok küçük, neredeyse görünmez</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q2" value="normal" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Normal boyut</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q2" value="large" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Büyük ve belirgin</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q2" value="tzone" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">T-bölgede büyük, yanaklarda küçük</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Question 3 -->
+                    <div class="question fade-in">
+                        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">3. Sivilce probleminiz var mı?</h3>
+                        <div class="space-y-2">
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q3" value="none" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Hiç yok</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q3" value="occasional" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Ara sıra, hormonal dönemlerde</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q3" value="frequent" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Sık sık, özellikle T-bölgede</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-primary/5">
+                                <input type="radio" name="q3" value="severe" class="mr-3">
+                                <span class="text-gray-700 dark:text-gray-300">Ciddi akne problemi</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button id="calculateSkinType" class="w-full bg-primary text-white py-3 px-6 rounded-lg font-semibold hover:bg-primary/90 transition-colors">
+                        Cilt Tipimi Belirle
+                    </button>
+                </div>
+
+                <div id="skinTypeResult" class="hidden mt-6 p-6 bg-gradient-to-r from-primary/10 to-purple-100 dark:from-primary/20 dark:to-purple-900/20 rounded-lg">
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">Cilt Tipi Sonucunuz</h3>
+                    <div id="skinTypeContent"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Tab -->
+        <div id="products" class="tab-content hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Ürün Koleksiyonum</h2>
+                    <button id="addProductBtn" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors">
+                        + Ürün Ekle
+                    </button>
+                </div>
+
+                <div id="productsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Products will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Routine Tab -->
+        <div id="routine" class="tab-content hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Cilt Bakım Rutinim</h2>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Morning Routine -->
+                    <div class="bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 p-6 rounded-lg">
+                        <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
+                            ☀️ Sabah Rutini
+                        </h3>
+                        <div id="morningRoutine" class="space-y-3">
+                            <!-- Morning routine steps will be added here -->
+                        </div>
+                        <button class="addRoutineStep mt-4 text-primary hover:bg-primary/10 px-3 py-2 rounded-lg transition-colors" data-time="morning">
+                            + Adım Ekle
+                        </button>
+                    </div>
+
+                    <!-- Evening Routine -->
+                    <div class="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 p-6 rounded-lg">
+                        <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
+                            🌙 Akşam Rutini
+                        </h3>
+                        <div id="eveningRoutine" class="space-y-3">
+                            <!-- Evening routine steps will be added here -->
+                        </div>
+                        <button class="addRoutineStep mt-4 text-primary hover:bg-primary/10 px-3 py-2 rounded-lg transition-colors" data-time="evening">
+                            + Adım Ekle
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <button id="generateRoutine" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors">
+                        Sahip Olduğum Ürünlere Göre Rutin Oluştur
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar Tab -->
+        <div id="calendar" class="tab-content hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Cilt Bakım Takvihi</h2>
+                
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="md:col-span-2">
+                        <div id="calendarView" class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                            <!-- Calendar will be generated here -->
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-4 rounded-lg">
+                            <h4 class="font-semibold text-gray-800 dark:text-white mb-2">📈 Bu Ay</h4>
+                            <div class="text-sm text-gray-600 dark:text-gray-300">
+                                <p>Tamamlanan rutin: <span id="monthlyCompleted" class="font-semibold">0</span></p>
+                                <p>Hedef: <span id="monthlyTarget" class="font-semibold">60</span></p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 p-4 rounded-lg">
+                            <h4 class="font-semibold text-gray-800 dark:text-white mb-2">🎯 Hedefler</h4>
+                            <div class="text-sm text-gray-600 dark:text-gray-300">
+                                <p>Günlük rutin: 2/2</p>
+                                <p>Haftalık maske: 1/1</p>
+                                <p>Su tüketimi: 8/8 bardak</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reminders Tab -->
+        <div id="reminders" class="tab-content hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Hatırlatma Ayarları</h2>
+                
+                <div class="space-y-6">
+                    <div class="bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">⏰ Rutin Hatırlatmaları</h3>
+                        
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Sabah Rutini</label>
+                                <input type="time" id="morningTime" value="08:00" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-base">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Akşam Rutini</label>
+                                <input type="time" id="eveningTime" value="22:00" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-base">
+                            </div>
+                        </div>
+
+                        <div class="mt-4 flex items-center">
+                            <input type="checkbox" id="enableNotifications" class="mr-3 w-4 h-4 text-primary">
+                            <label for="enableNotifications" class="text-gray-700 dark:text-gray-300">Tarayıcı bildirimlerini etkinleştir</label>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">📅 Özel Hatırlatmalar</h3>
+                        
+                        <div id="customReminders" class="space-y-3 mb-4">
+                            <!-- Custom reminders will be added here -->
+                        </div>
+                        
+                        <button id="addReminderBtn" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors">
+                            + Hatırlatma Ekle
+             
